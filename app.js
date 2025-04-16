@@ -49,6 +49,12 @@ document.addEventListener("DOMContentLoaded", () => {
     let selectedPlayers = []; // Currently selected players
     let isLoading = true;
 
+    // Helper function to capitalize first letter of a name
+    function capitalizeFirstLetter(name) {
+      if (!name || typeof name !== "string" || name.length === 0) return name;
+      return name.charAt(0).toUpperCase() + name.slice(1);
+    }
+
     // Initialize app
     init();
 
@@ -264,8 +270,11 @@ document.addEventListener("DOMContentLoaded", () => {
         playerCard.classList.add("disabled");
       }
 
+      // Capitalize the first letter of player name for display
+      const displayName = capitalizeFirstLetter(playerName);
+
       playerCard.innerHTML = `
-        <span class="player-name">${playerName}</span>
+        <span class="player-name">${displayName}</span>
         <div class="player-actions">
           <button class="delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
         </div>
@@ -467,7 +476,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       members.forEach((member) => {
         const memberItem = document.createElement("li");
-        memberItem.textContent = member;
+        // Capitalize the first letter of member name for display
+        memberItem.textContent = capitalizeFirstLetter(member);
         membersList.appendChild(memberItem);
       });
 
