@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Constants
   const AUTH_SESSION_KEY = "sesherz_auth_verified";
   const MAX_PIN_ATTEMPTS = 5;
+  const PIN_DOC_ID = "bq6plNBCru71wW5AKO4X"; // Document ID that contains the PIN
 
   // State
   let pinAttempts = 0;
@@ -82,31 +83,46 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const enteredPin = pinValues.join("");
+    console.log("Entered PIN:", enteredPin);
 
     // Show loading state
     submitPinBtn.innerHTML =
       '<i class="fas fa-spinner fa-spin"></i> Verifying...';
     submitPinBtn.disabled = true;
 
-    // Check pin against Firestore
+    // Check pin against Firestore using the correct path
     db.collection("pin")
-      .doc("access")
+      .doc(PIN_DOC_ID)
       .get()
       .then((doc) => {
-        if (doc.exists && doc.data().value === enteredPin) {
-          // Correct PIN
-          authMessage.textContent = "";
-          authMessage.style.color = "var(--success-color)";
-          authMessage.textContent = "Access granted! Loading...";
+        if (doc.exists) {
+          // Log the fetched PIN from Firestore
+          console.log("Firestore PIN document:", doc.data());
+          console.log("Fetched PIN:", doc.data().pin);
+          console.log("PIN comparison:", doc.data().pin === enteredPin);
 
-          // Store authentication state in session storage
-          sessionStorage.setItem(AUTH_SESSION_KEY, "true");
+          if (doc.data().pin === enteredPin) {
+            // Correct PIN
+            authMessage.textContent = "";
+            authMessage.style.color = "var(--success-color)";
+            authMessage.textContent = "Access granted! Loading...";
 
-          // Show main app
-          setTimeout(showMainApp, 1000);
+            // Store authentication state in session storage
+            sessionStorage.setItem(AUTH_SESSION_KEY, "true");
+
+            // Show main app
+            setTimeout(showMainApp, 1000);
+          } else {
+            // Incorrect PIN
+            handleIncorrectPin();
+          }
         } else {
-          // Incorrect PIN
-          handleIncorrectPin();
+          // Document doesn't exist
+          console.error("PIN document not found in Firestore");
+          console.log("Collection path:", db.collection("pin").path);
+          console.log("Document ID used:", PIN_DOC_ID);
+          showError("Error verifying PIN. Document not found.");
+          resetSubmitButton();
         }
       })
       .catch((error) => {
@@ -162,5 +178,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function showMainApp() {
     authScreen.classList.add("hidden");
     appContainer.classList.remove("hidden");
+
+    // Manually trigger app initialization by dispatching a custom event
+    const appInitEvent = new CustomEvent("appAuthenticated");
+    document.dispatchEvent(appInitEvent);
   }
 });

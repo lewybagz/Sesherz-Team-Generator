@@ -52,7 +52,10 @@ To set up your own instance with Firebase:
 1. Create a Firebase account at [firebase.google.com](https://firebase.google.com/)
 2. Create a new Firebase project
 3. Set up Firestore Database in test mode
-4. Create a document at the path `pin/access` with a field `value` containing your 6-digit PIN
+4. Create a PIN document with the following structure:
+   - Collection: `pin`
+   - Document ID: `bq6plNBCru71wW5AKO4X` (or update the `PIN_DOC_ID` constant in auth.js)
+   - Field: `pin` (string) - Set this to your desired 6-digit PIN code
 5. Register a web app in your Firebase project
 6. Copy the Firebase configuration from the Firebase console
 7. Update the `firebase-config.js` file with your configuration

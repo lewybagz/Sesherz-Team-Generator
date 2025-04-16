@@ -90,74 +90,73 @@
       </header>
 
       <main>
-        <section class="team-size-selector">
+        <section id="team-selection">
           <h2>Team Size</h2>
+          <p>Select the number of players per team:</p>
           <div class="team-options">
             <button class="team-size-btn" data-size="2">2v2</button>
             <button class="team-size-btn" data-size="3">3v3</button>
             <button class="team-size-btn" data-size="4">4v4</button>
             <button class="team-size-btn" data-size="5">5v5</button>
-            <button class="team-size-btn" data-size="6">6v6</button>
+            <button class="team-size-btn active" data-size="6">6v6</button>
             <button class="team-size-btn" data-size="7">7v7</button>
           </div>
         </section>
 
-        <section class="player-selection">
+        <section id="player-selection">
           <h2>Players</h2>
+          <p id="player-limit-message">
+            Select up to <span id="max-players-count">12</span> players (for
+            current team size)
+          </p>
           <div class="player-input-container">
             <input
               type="text"
               id="player-name"
               placeholder="Enter player name"
             />
-            <button id="add-player" class="btn">
-              <i class="fas fa-plus"></i> Add
-            </button>
+            <button id="add-player" class="btn">Add</button>
           </div>
-
-          <div class="player-list-container">
+          <div id="selected-players-container">
             <h3>Selected Players: <span id="player-count">0</span></h3>
-            <div class="players-grid" id="selected-players">
-              <!-- Players will be added here dynamically -->
-            </div>
+            <div id="selected-players" class="players-grid"></div>
           </div>
-
-          <div class="saved-players-container">
-            <div class="saved-players-header">
-              <h3>Saved Players</h3>
-              <div class="data-controls">
-                <button
-                  id="export-data"
-                  class="btn btn-small"
-                  title="Export Players"
-                >
-                  <i class="fas fa-download"></i> Export
-                </button>
-                <div class="file-upload-container">
-                  <label
-                    for="import-file"
-                    class="btn btn-small"
-                    title="Import Players"
-                  >
-                    <i class="fas fa-upload"></i> Import
-                  </label>
-                  <input type="file" id="import-file" accept=".json" />
-                </div>
-              </div>
-            </div>
-            <div class="players-grid" id="saved-players">
-              <!-- Saved players will be loaded here -->
-            </div>
+          <div class="team-controls">
+            <button id="generate-teams" class="btn btn-primary">
+              Generate Teams
+            </button>
+            <button id="clear-players" class="btn btn-secondary">
+              Clear All
+            </button>
           </div>
         </section>
 
-        <section class="team-controls">
-          <button id="generate-teams" class="btn btn-primary">
-            <i class="fas fa-random"></i> Generate Teams
-          </button>
-          <button id="reset" class="btn btn-secondary">
-            <i class="fas fa-trash"></i> Reset
-          </button>
+        <section class="saved-players-container">
+          <div class="saved-players-header">
+            <h3>Saved Players</h3>
+            <div class="data-controls">
+              <button
+                id="export-data"
+                class="btn btn-small"
+                title="Export Players"
+              >
+                <i class="fas fa-download"></i> Export
+              </button>
+              <div class="file-upload-container">
+                <label
+                  for="import-file"
+                  class="btn btn-small"
+                  title="Import Players"
+                >
+                  <i class="fas fa-upload"></i> Import
+                </label>
+                <input type="file" id="import-file" accept=".json" />
+              </div>
+            </div>
+          </div>
+          <div class="players-grid" id="saved-players">
+            <!-- Saved players will be loaded here -->
+          </div>
         </section>
 
         <section class="teams-display" id="teams-container">
@@ -166,7 +165,10 @@
       </main>
 
       <footer>
-        <p>© 2023 Pick Teams Pussy | Premium Team Generator</p>
+        <p>
+          © <span id="current-year"></span> Pick Teams Pussy | Premium Team
+          Generator
+        </p>
       </footer>
     </div>
 
@@ -182,5 +184,12 @@
 
     <!-- App -->
     <script src="app.js"></script>
+
+    <!-- Footer year script -->
+    <script>
+      // Set current year in footer
+      document.getElementById("current-year").textContent =
+        new Date().getFullYear();
+    </script>
   </body>
 </html>

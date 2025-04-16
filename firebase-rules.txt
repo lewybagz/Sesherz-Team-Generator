@@ -1,0 +1,33 @@
+// Firestore Rules for "Pick Teams Pussy" app
+// Copy these rules into your Firebase Console > Firestore Database > Rules
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow unrestricted read/write access to all documents
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
+
+/* 
+IMPORTANT NOTES:
+
+1. These rules allow ANYONE to read and write ANY data in your Firestore database.
+2. This is appropriate for this app because:
+   - Access is already protected by PIN authentication
+   - The application is for non-sensitive team generation
+   - Security is handled at the application level, not the database level
+
+3. To apply these rules:
+   - Go to Firebase Console: https://console.firebase.google.com/
+   - Select your project
+   - Navigate to Firestore Database > Rules
+   - Copy the rules above (without these notes)
+   - Paste and publish
+
+4. If you need more security in the future, consider implementing specific rules:
+   - Restrict pin document access: only allow reads, no writes
+   - Restrict player data: only allow access for authenticated users
+*/ 

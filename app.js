@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const AUTH_SESSION_KEY = "sesherz_auth_verified";
   const isAuthenticated = sessionStorage.getItem(AUTH_SESSION_KEY) === "true";
 
-  // Only initialize the app if authenticated or auth is hidden (already verified)
+  // Initialize app if already authenticated
   if (
     isAuthenticated ||
     document.getElementById("auth-screen").classList.contains("hidden")
@@ -11,7 +11,22 @@ document.addEventListener("DOMContentLoaded", () => {
     initApp();
   }
 
+  // Listen for authentication event from auth.js
+  document.addEventListener("appAuthenticated", () => {
+    console.log("Authentication event received, initializing app...");
+    initApp();
+  });
+
   function initApp() {
+    // Prevent multiple initializations
+    if (window.appInitialized) {
+      console.log("App already initialized, skipping...");
+      return;
+    }
+
+    console.log("Initializing application...");
+    window.appInitialized = true;
+
     // DOM Elements
     const teamSizeButtons = document.querySelectorAll(".team-size-btn");
     const playerNameInput = document.getElementById("player-name");
@@ -25,12 +40,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const teamsContainer = document.getElementById("teams-container");
     const exportDataBtn = document.getElementById("export-data");
     const importFileInput = document.getElementById("import-file");
+    const maxPlayersCountElement = document.getElementById("max-players-count");
 
     // References to Firestore collection
     const playersCollection = db.collection("players");
 
     // App State
-    let selectedTeamSize = 2; // Default to 2v2
+    let selectedTeamSize = 6; // Default to 6v6 (matching the active button in HTML)
+    let maxPlayers = selectedTeamSize * 2; // Maximum players allowed (based on team size)
     let selectedPlayers = [];
     let savedPlayers = [];
     let isLoading = true;
@@ -39,8 +56,8 @@ document.addEventListener("DOMContentLoaded", () => {
     init();
 
     async function init() {
-      // Set default team size button as active
-      teamSizeButtons[0].classList.add("active");
+      // Set default max players message
+      updateMaxPlayersMessage();
 
       // Show loading state
       savedPlayersContainer.innerHTML =
@@ -50,7 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
         // Load saved players from Firestore
         await loadSavedPlayers();
       } catch (error) {
-        console.error("Error loading players:", error);
         savedPlayersContainer.innerHTML =
           '<div class="error-message">Failed to load players. Please refresh.</div>';
       } finally {
@@ -70,12 +86,47 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.addEventListener("click", () => {
           teamSizeButtons.forEach((b) => b.classList.remove("active"));
           btn.classList.add("active");
+
+          // Update selected team size
           selectedTeamSize = parseInt(btn.dataset.size);
+
+          // Update maximum allowed players
+          maxPlayers = selectedTeamSize * 2;
+
+          // Update the maximum players message
+          updateMaxPlayersMessage();
+
+          // Check if we need to remove players due to new team size
+          if (selectedPlayers.length > maxPlayers) {
+            const excessPlayers = selectedPlayers.length - maxPlayers;
+            selectedPlayers = selectedPlayers.slice(0, maxPlayers);
+
+            // Remove excess player cards from UI
+            const playerCards =
+              selectedPlayersContainer.querySelectorAll(".player-card");
+            for (let i = playerCards.length - 1; i >= maxPlayers; i--) {
+              playerCards[i].remove();
+            }
+
+            // Update player count
+            updatePlayerCount();
+
+            // Notify user
+            alert(
+              `Team size changed to ${selectedTeamSize}v${selectedTeamSize}. ${excessPlayers} player(s) were removed from selection because the maximum is now ${maxPlayers} players.`
+            );
+          }
+
+          // Update add button state
+          updateAddButtonState();
         });
       });
 
       // Add player
-      addPlayerBtn.addEventListener("click", addPlayer);
+      addPlayerBtn.addEventListener("click", () => {
+        addPlayer();
+      });
+
       playerNameInput.addEventListener("keypress", (e) => {
         if (e.key === "Enter") addPlayer();
       });
@@ -93,6 +144,13 @@ document.addEventListener("DOMContentLoaded", () => {
       importFileInput.addEventListener("change", importPlayerData);
     }
 
+    // Function to update the max players message
+    function updateMaxPlayersMessage() {
+      if (maxPlayersCountElement) {
+        maxPlayersCountElement.textContent = maxPlayers;
+      }
+    }
+
     async function addPlayer() {
       const playerName = playerNameInput.value.trim();
 
@@ -101,6 +159,14 @@ document.addEventListener("DOMContentLoaded", () => {
       // Check if player is already selected
       if (selectedPlayers.includes(playerName)) {
         alert("This player is already selected!");
+        return;
+      }
+
+      // Check if we're at maximum players
+      if (selectedPlayers.length >= maxPlayers) {
+        alert(
+          `Maximum players reached (${maxPlayers} for ${selectedTeamSize}v${selectedTeamSize}). Please remove a player or select a larger team size.`
+        );
         return;
       }
 
@@ -122,7 +188,6 @@ document.addEventListener("DOMContentLoaded", () => {
           // Add to saved players display
           addSavedPlayerToDisplay(playerName);
         } catch (error) {
-          console.error("Error saving player:", error);
           alert("Failed to save player. Please try again.");
         }
       }
@@ -136,6 +201,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Update player count
       updatePlayerCount();
+
+      // Update add button state
+      updateAddButtonState();
     }
 
     function addSelectedPlayerToDisplay(playerName) {
@@ -155,6 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
         selectedPlayers = selectedPlayers.filter((p) => p !== playerName);
         playerCard.remove();
         updatePlayerCount();
+        updateAddButtonState();
       });
 
       selectedPlayersContainer.appendChild(playerCard);
@@ -181,10 +250,19 @@ document.addEventListener("DOMContentLoaded", () => {
         // If the click was on the delete button, don't add to selected players
         if (e.target.closest(".delete-btn")) return;
 
+        // Check if we're at maximum players
+        if (selectedPlayers.length >= maxPlayers) {
+          alert(
+            `Maximum players reached (${maxPlayers} for ${selectedTeamSize}v${selectedTeamSize}). Please remove a player or select a larger team size.`
+          );
+          return;
+        }
+
         if (!selectedPlayers.includes(playerName)) {
           selectedPlayers.push(playerName);
           addSelectedPlayerToDisplay(playerName);
           updatePlayerCount();
+          updateAddButtonState();
         } else {
           alert("This player is already selected!");
         }
@@ -215,8 +293,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Update player count
             updatePlayerCount();
+            updateAddButtonState();
           } catch (error) {
-            console.error("Error deleting player:", error);
             alert("Failed to delete player. Please try again.");
           }
         });
@@ -244,15 +322,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updatePlayerCount() {
       playerCountElement.textContent = selectedPlayers.length;
+
+      // Update the count color based on whether we have enough players
+      const totalPlayers = selectedTeamSize * 2;
+      if (selectedPlayers.length === totalPlayers) {
+        playerCountElement.style.color = "var(--success-color)";
+      } else if (selectedPlayers.length > totalPlayers) {
+        playerCountElement.style.color = "var(--warning-color)";
+      } else {
+        playerCountElement.style.color = "inherit";
+      }
+    }
+
+    function updateAddButtonState() {
+      // Disable add button if at max players
+      if (selectedPlayers.length >= maxPlayers) {
+        addPlayerBtn.disabled = true;
+        addPlayerBtn.classList.add("btn-disabled");
+        addPlayerBtn.title = `Maximum ${maxPlayers} players reached for ${selectedTeamSize}v${selectedTeamSize}`;
+        playerNameInput.disabled = true;
+        playerNameInput.placeholder = `Max ${maxPlayers} players reached`;
+      } else {
+        addPlayerBtn.disabled = false;
+        addPlayerBtn.classList.remove("btn-disabled");
+        addPlayerBtn.title = "";
+        playerNameInput.disabled = false;
+        playerNameInput.placeholder = "Enter player name";
+      }
     }
 
     function generateTeams() {
-      // Check if we have enough players
+      // Check if we have exactly the right number of players
       const totalPlayers = selectedTeamSize * 2;
 
       if (selectedPlayers.length < totalPlayers) {
         alert(
-          `You need at least ${totalPlayers} players for ${selectedTeamSize}v${selectedTeamSize} teams!`
+          `You need exactly ${totalPlayers} players for ${selectedTeamSize}v${selectedTeamSize} teams! You currently have ${selectedPlayers.length}.`
+        );
+        return;
+      }
+
+      if (selectedPlayers.length > totalPlayers) {
+        alert(
+          `You have too many players (${selectedPlayers.length}). For ${selectedTeamSize}v${selectedTeamSize}, you need exactly ${totalPlayers} players.`
         );
         return;
       }
@@ -331,6 +443,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Reset player count
       updatePlayerCount();
+
+      // Reset add button state
+      updateAddButtonState();
     }
 
     // Export player data to JSON file
@@ -422,7 +537,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
           alert(`Successfully imported ${newPlayers.length} new player(s)!`);
         } catch (error) {
-          console.error("Error importing players:", error);
           alert(`Error importing players: ${error.message}`);
         }
 
@@ -445,5 +559,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const day = String(date.getDate()).padStart(2, "0");
       return `${year}-${month}-${day}`;
     }
+
+    // Initial state setup
+    updateAddButtonState();
   }
 });
