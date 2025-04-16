@@ -1,0 +1,511 @@
+:root {
+  --primary-color: #6c5ce7;
+  --primary-light: #a29bfe;
+  --secondary-color: #fd79a8;
+  --dark-color: #2d3436;
+  --light-color: #f9f9f9;
+  --success-color: #00b894;
+  --warning-color: #fdcb6e;
+  --danger-color: #d63031;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --border-radius: 8px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  color: var(--dark-color);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Authentication Screen */
+.auth-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.auth-container {
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 400px;
+  padding: 2rem;
+  text-align: center;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-logo {
+  margin-bottom: 2rem;
+}
+
+.auth-logo h1 {
+  font-size: 2.2rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.auth-logo p {
+  color: var(--dark-color);
+  opacity: 0.7;
+}
+
+.auth-form h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--dark-color);
+}
+
+.pin-container {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.pin-input {
+  width: 40px;
+  height: 50px;
+  border: 2px solid var(--primary-light);
+  border-radius: var(--border-radius);
+  font-size: 1.5rem;
+  text-align: center;
+  background-color: white;
+  transition: all 0.3s ease;
+}
+
+.pin-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.2);
+  outline: none;
+}
+
+.pin-input.shake {
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-5px);
+  }
+  40%,
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+.auth-message {
+  height: 20px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--danger-color);
+}
+
+.auth-button {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Main App Styles */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  font-size: 2.8rem;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+  text-shadow: 0 2px 10px rgba(108, 92, 231, 0.2);
+}
+
+.tagline {
+  font-size: 1.2rem;
+  color: var(--dark-color);
+  opacity: 0.8;
+}
+
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--dark-color);
+}
+
+h3 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  color: var(--dark-color);
+}
+
+section {
+  background-color: white;
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.team-options {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.team-size-btn {
+  background-color: white;
+  border: 2px solid var(--primary-light);
+  border-radius: var(--border-radius);
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 70px;
+}
+
+.team-size-btn:hover {
+  background-color: var(--primary-light);
+  color: white;
+}
+
+.team-size-btn.active {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.player-input-container {
+  display: flex;
+  margin-bottom: 1.5rem;
+}
+
+input[type="text"] {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius) 0 0 var(--border-radius);
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.btn {
+  background-color: var(--primary-light);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-small {
+  padding: 0.5rem 0.8rem;
+  font-size: 0.9rem;
+}
+
+#add-player {
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-radius: var(--border-radius);
+}
+
+.btn-secondary {
+  background-color: var(--dark-color);
+  border-radius: var(--border-radius);
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.player-card {
+  background-color: var(--light-color);
+  border-radius: var(--border-radius);
+  padding: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.player-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.saved-player {
+  cursor: pointer;
+}
+
+.saved-player:hover {
+  background-color: rgba(108, 92, 231, 0.1);
+}
+
+.player-name {
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.player-actions {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.player-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--dark-color);
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.player-actions button:hover {
+  opacity: 1;
+}
+
+.player-actions .remove-btn:hover {
+  color: var(--danger-color);
+}
+
+.player-actions .delete-btn:hover {
+  color: var(--danger-color);
+}
+
+.team-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.teams-display {
+  display: none;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.teams-display.active {
+  display: grid;
+}
+
+.team {
+  background-color: white;
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.team-name {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.team-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.team-members {
+  list-style: none;
+}
+
+.team-members li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.team-members li:last-child {
+  border-bottom: none;
+}
+
+.team-1 .team-name {
+  color: var(--primary-color);
+}
+
+.team-2 .team-name {
+  color: var(--secondary-color);
+}
+
+footer {
+  text-align: center;
+  margin-top: 3rem;
+  color: var(--dark-color);
+  opacity: 0.7;
+  font-size: 0.9rem;
+}
+
+/* New Styles for Export/Import */
+.saved-players-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.data-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.file-upload-container {
+  position: relative;
+}
+
+.file-upload-container label {
+  margin: 0;
+}
+
+input[type="file"] {
+  position: absolute;
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  z-index: -1;
+}
+
+/* Firebase loading and error states */
+.loading-spinner {
+  padding: 2rem;
+  text-align: center;
+  color: var(--dark-color);
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.loading-spinner::after {
+  content: "";
+  display: block;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 3px solid var(--primary-light);
+  border-top-color: var(--primary-color);
+  animation: spinner 1s linear infinite;
+  margin: 1rem auto 0;
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error-message {
+  padding: 1rem;
+  background-color: rgba(214, 48, 49, 0.1);
+  border: 1px solid var(--danger-color);
+  border-radius: var(--border-radius);
+  color: var(--danger-color);
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 2.2rem;
+  }
+
+  .team-controls {
+    flex-direction: column;
+  }
+
+  .players-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .saved-players-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .pin-container {
+    gap: 0.3rem;
+  }
+
+  .pin-input {
+    width: 35px;
+    height: 45px;
+    font-size: 1.3rem;
+  }
+}

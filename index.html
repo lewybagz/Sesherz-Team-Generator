@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pick Teams Pussy</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="auth-overlay">
+      <div class="auth-container">
+        <div class="auth-logo">
+          <h1>Pick Teams Pussy</h1>
+          <p>Premium Team Generator</p>
+        </div>
+        <div class="auth-form">
+          <h2>Enter PIN to Access</h2>
+          <div class="pin-container">
+            <input
+              type="password"
+              maxlength="1"
+              class="pin-input"
+              data-index="0"
+              inputmode="numeric"
+              pattern="[0-9]*"
+            />
+            <input
+              type="password"
+              maxlength="1"
+              class="pin-input"
+              data-index="1"
+              inputmode="numeric"
+              pattern="[0-9]*"
+            />
+            <input
+              type="password"
+              maxlength="1"
+              class="pin-input"
+              data-index="2"
+              inputmode="numeric"
+              pattern="[0-9]*"
+            />
+            <input
+              type="password"
+              maxlength="1"
+              class="pin-input"
+              data-index="3"
+              inputmode="numeric"
+              pattern="[0-9]*"
+            />
+            <input
+              type="password"
+              maxlength="1"
+              class="pin-input"
+              data-index="4"
+              inputmode="numeric"
+              pattern="[0-9]*"
+            />
+            <input
+              type="password"
+              maxlength="1"
+              class="pin-input"
+              data-index="5"
+              inputmode="numeric"
+              pattern="[0-9]*"
+            />
+          </div>
+          <p id="auth-message" class="auth-message"></p>
+          <button id="submit-pin" class="btn btn-primary auth-button">
+            <i class="fas fa-lock-open"></i> Unlock Access
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main App (will be hidden until authentication) -->
+    <div id="app-container" class="container hidden">
+      <header>
+        <h1>Pick Teams Pussy</h1>
+        <p class="tagline">Sesherz Team Generator</p>
+      </header>
+
+      <main>
+        <section class="team-size-selector">
+          <h2>Team Size</h2>
+          <div class="team-options">
+            <button class="team-size-btn" data-size="2">2v2</button>
+            <button class="team-size-btn" data-size="3">3v3</button>
+            <button class="team-size-btn" data-size="4">4v4</button>
+            <button class="team-size-btn" data-size="5">5v5</button>
+            <button class="team-size-btn" data-size="6">6v6</button>
+            <button class="team-size-btn" data-size="7">7v7</button>
+          </div>
+        </section>
+
+        <section class="player-selection">
+          <h2>Players</h2>
+          <div class="player-input-container">
+            <input
+              type="text"
+              id="player-name"
+              placeholder="Enter player name"
+            />
+            <button id="add-player" class="btn">
+              <i class="fas fa-plus"></i> Add
+            </button>
+          </div>
+
+          <div class="player-list-container">
+            <h3>Selected Players: <span id="player-count">0</span></h3>
+            <div class="players-grid" id="selected-players">
+              <!-- Players will be added here dynamically -->
+            </div>
+          </div>
+
+          <div class="saved-players-container">
+            <div class="saved-players-header">
+              <h3>Saved Players</h3>
+              <div class="data-controls">
+                <button
+                  id="export-data"
+                  class="btn btn-small"
+                  title="Export Players"
+                >
+                  <i class="fas fa-download"></i> Export
+                </button>
+                <div class="file-upload-container">
+                  <label
+                    for="import-file"
+                    class="btn btn-small"
+                    title="Import Players"
+                  >
+                    <i class="fas fa-upload"></i> Import
+                  </label>
+                  <input type="file" id="import-file" accept=".json" />
+                </div>
+              </div>
+            </div>
+            <div class="players-grid" id="saved-players">
+              <!-- Saved players will be loaded here -->
+            </div>
+          </div>
+        </section>
+
+        <section class="team-controls">
+          <button id="generate-teams" class="btn btn-primary">
+            <i class="fas fa-random"></i> Generate Teams
+          </button>
+          <button id="reset" class="btn btn-secondary">
+            <i class="fas fa-trash"></i> Reset
+          </button>
+        </section>
+
+        <section class="teams-display" id="teams-container">
+          <!-- Teams will be displayed here after generation -->
+        </section>
+      </main>
+
+      <footer>
+        <p>© 2023 Pick Teams Pussy | Premium Team Generator</p>
+      </footer>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+
+    <!-- Auth script -->
+    <script src="auth.js"></script>
+
+    <!-- App -->
+    <script src="app.js"></script>
+  </body>
+</html>
