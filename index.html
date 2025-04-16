@@ -2,6 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="description" content="Premium Team Generator" />
+    <meta name="author" content="Sesherz Team Generator" />
+    <meta name="keywords" content="team generator, pick teams pussy" />
+    <!-- favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pick Teams Pussy</title>
     <link rel="stylesheet" href="styles.css" />
@@ -117,45 +126,26 @@
             />
             <button id="add-player" class="btn">Add</button>
           </div>
-          <div id="selected-players-container">
-            <h3>Selected Players: <span id="player-count">0</span></h3>
-            <div id="selected-players" class="players-grid"></div>
+
+          <div class="player-stats">
+            <p>
+              Selected: <span id="player-count">0</span> /
+              <span id="required-players">12</span>
+            </p>
           </div>
+
+          <div class="players-grid" id="all-players">
+            <!-- All players will be loaded here -->
+            <!-- When clicked, they will be selected/deselected -->
+          </div>
+
           <div class="team-controls">
             <button id="generate-teams" class="btn btn-primary">
               Generate Teams
             </button>
-            <button id="clear-players" class="btn btn-secondary">
-              Clear All
+            <button id="reset-selection" class="btn btn-secondary">
+              Clear Selection
             </button>
-          </div>
-        </section>
-
-        <section class="saved-players-container">
-          <div class="saved-players-header">
-            <h3>Saved Players</h3>
-            <div class="data-controls">
-              <button
-                id="export-data"
-                class="btn btn-small"
-                title="Export Players"
-              >
-                <i class="fas fa-download"></i> Export
-              </button>
-              <div class="file-upload-container">
-                <label
-                  for="import-file"
-                  class="btn btn-small"
-                  title="Import Players"
-                >
-                  <i class="fas fa-upload"></i> Import
-                </label>
-                <input type="file" id="import-file" accept=".json" />
-              </div>
-            </div>
-          </div>
-          <div class="players-grid" id="saved-players">
-            <!-- Saved players will be loaded here -->
           </div>
         </section>
 

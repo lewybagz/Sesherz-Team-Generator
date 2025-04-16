@@ -31,15 +31,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const teamSizeButtons = document.querySelectorAll(".team-size-btn");
     const playerNameInput = document.getElementById("player-name");
     const addPlayerBtn = document.getElementById("add-player");
-    const selectedPlayersContainer =
-      document.getElementById("selected-players");
-    const savedPlayersContainer = document.getElementById("saved-players");
+    const allPlayersContainer = document.getElementById("all-players");
     const playerCountElement = document.getElementById("player-count");
+    const requiredPlayersElement = document.getElementById("required-players");
     const generateTeamsBtn = document.getElementById("generate-teams");
-    const resetBtn = document.getElementById("reset");
+    const resetSelectionBtn = document.getElementById("reset-selection");
     const teamsContainer = document.getElementById("teams-container");
-    const exportDataBtn = document.getElementById("export-data");
-    const importFileInput = document.getElementById("import-file");
     const maxPlayersCountElement = document.getElementById("max-players-count");
 
     // References to Firestore collection
@@ -48,8 +45,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // App State
     let selectedTeamSize = 6; // Default to 6v6 (matching the active button in HTML)
     let maxPlayers = selectedTeamSize * 2; // Maximum players allowed (based on team size)
-    let selectedPlayers = [];
-    let savedPlayers = [];
+    let allPlayers = []; // All players from the database
+    let selectedPlayers = []; // Currently selected players
     let isLoading = true;
 
     // Initialize app
@@ -59,15 +56,18 @@ document.addEventListener("DOMContentLoaded", () => {
       // Set default max players message
       updateMaxPlayersMessage();
 
+      // Set required players count
+      updateRequiredPlayersCount();
+
       // Show loading state
-      savedPlayersContainer.innerHTML =
+      allPlayersContainer.innerHTML =
         '<div class="loading-spinner">Loading players...</div>';
 
       try {
-        // Load saved players from Firestore
-        await loadSavedPlayers();
+        // Load players from Firestore
+        await loadPlayers();
       } catch (error) {
-        savedPlayersContainer.innerHTML =
+        allPlayersContainer.innerHTML =
           '<div class="error-message">Failed to load players. Please refresh.</div>';
       } finally {
         isLoading = false;
@@ -96,29 +96,36 @@ document.addEventListener("DOMContentLoaded", () => {
           // Update the maximum players message
           updateMaxPlayersMessage();
 
-          // Check if we need to remove players due to new team size
+          // Update required players count
+          updateRequiredPlayersCount();
+
+          // Check if we need to deselect players due to new team size
           if (selectedPlayers.length > maxPlayers) {
-            const excessPlayers = selectedPlayers.length - maxPlayers;
+            // Keep only the first maxPlayers selected players
+            const removedPlayers = selectedPlayers.slice(maxPlayers);
             selectedPlayers = selectedPlayers.slice(0, maxPlayers);
 
-            // Remove excess player cards from UI
-            const playerCards =
-              selectedPlayersContainer.querySelectorAll(".player-card");
-            for (let i = playerCards.length - 1; i >= maxPlayers; i--) {
-              playerCards[i].remove();
-            }
-
-            // Update player count
-            updatePlayerCount();
+            // Update player cards UI - remove selection class from deselected players
+            removedPlayers.forEach((playerName) => {
+              const playerCard = allPlayersContainer.querySelector(
+                `[data-name="${playerName}"]`
+              );
+              if (playerCard) {
+                playerCard.classList.remove("selected");
+              }
+            });
 
             // Notify user
             alert(
-              `Team size changed to ${selectedTeamSize}v${selectedTeamSize}. ${excessPlayers} player(s) were removed from selection because the maximum is now ${maxPlayers} players.`
+              `Team size changed to ${selectedTeamSize}v${selectedTeamSize}. ${removedPlayers.length} player(s) were deselected because the maximum is now ${maxPlayers} players.`
             );
           }
 
-          // Update add button state
-          updateAddButtonState();
+          // Update player count
+          updatePlayerCount();
+
+          // Update player cards to reflect max selection state
+          updatePlayerCardStates();
         });
       });
 
@@ -134,14 +141,15 @@ document.addEventListener("DOMContentLoaded", () => {
       // Generate teams
       generateTeamsBtn.addEventListener("click", generateTeams);
 
-      // Reset
-      resetBtn.addEventListener("click", resetApp);
+      // Reset selection
+      resetSelectionBtn.addEventListener("click", resetSelection);
+    }
 
-      // Export data
-      exportDataBtn.addEventListener("click", exportPlayerData);
-
-      // Import data
-      importFileInput.addEventListener("change", importPlayerData);
+    // Function to update the required players count display
+    function updateRequiredPlayersCount() {
+      if (requiredPlayersElement) {
+        requiredPlayersElement.textContent = maxPlayers;
+      }
     }
 
     // Function to update the max players message
@@ -151,121 +159,150 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    // Function to update all player card states based on selection
+    function updatePlayerCardStates() {
+      const playerCards = allPlayersContainer.querySelectorAll(".player-card");
+
+      // If we've reached max selection, disable non-selected cards
+      const atMaxSelection = selectedPlayers.length >= maxPlayers;
+
+      playerCards.forEach((card) => {
+        const playerName = card.dataset.name;
+        const isSelected = selectedPlayers.includes(playerName);
+
+        // Update the selected class
+        if (isSelected) {
+          card.classList.add("selected");
+        } else {
+          card.classList.remove("selected");
+        }
+
+        // Update the disabled state
+        if (atMaxSelection && !isSelected) {
+          card.classList.add("disabled");
+        } else {
+          card.classList.remove("disabled");
+        }
+      });
+    }
+
     async function addPlayer() {
       const playerName = playerNameInput.value.trim();
 
       if (!playerName) return;
 
-      // Check if player is already selected
-      if (selectedPlayers.includes(playerName)) {
-        alert("This player is already selected!");
-        return;
-      }
-
-      // Check if we're at maximum players
+      // Check if we're at maximum selected players
       if (selectedPlayers.length >= maxPlayers) {
         alert(
-          `Maximum players reached (${maxPlayers} for ${selectedTeamSize}v${selectedTeamSize}). Please remove a player or select a larger team size.`
+          `Maximum ${maxPlayers} players can be selected for ${selectedTeamSize}v${selectedTeamSize}. Please deselect some players first.`
         );
         return;
       }
 
-      // Add to selected players
-      selectedPlayers.push(playerName);
-
-      // Add to saved players if not already saved
-      if (!savedPlayers.includes(playerName)) {
-        try {
-          // Add to Firestore
+      try {
+        // Add to Firestore if not already exists
+        if (!allPlayers.includes(playerName)) {
           await playersCollection.doc(playerName).set({
             name: playerName,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           });
 
-          // Add to local saved players array
-          savedPlayers.push(playerName);
+          // Add to local array
+          allPlayers.push(playerName);
 
-          // Add to saved players display
-          addSavedPlayerToDisplay(playerName);
-        } catch (error) {
-          alert("Failed to save player. Please try again.");
+          // Add to UI
+          addPlayerToDisplay(playerName);
         }
+
+        // Select the newly added player
+        if (!selectedPlayers.includes(playerName)) {
+          selectedPlayers.push(playerName);
+
+          // Update the UI
+          const playerCard = allPlayersContainer.querySelector(
+            `[data-name="${playerName}"]`
+          );
+          if (playerCard) {
+            playerCard.classList.add("selected");
+          }
+        }
+
+        // Clear input
+        playerNameInput.value = "";
+        playerNameInput.focus();
+
+        // Update player count
+        updatePlayerCount();
+
+        // Update player card states
+        updatePlayerCardStates();
+      } catch (error) {
+        alert("Failed to add player. Please try again.");
       }
-
-      // Add to selected players display
-      addSelectedPlayerToDisplay(playerName);
-
-      // Clear input
-      playerNameInput.value = "";
-      playerNameInput.focus();
-
-      // Update player count
-      updatePlayerCount();
-
-      // Update add button state
-      updateAddButtonState();
     }
 
-    function addSelectedPlayerToDisplay(playerName) {
+    function addPlayerToDisplay(playerName) {
+      // Check if already exists in display
+      if (allPlayersContainer.querySelector(`[data-name="${playerName}"]`)) {
+        return;
+      }
+
       const playerCard = document.createElement("div");
       playerCard.className = "player-card";
       playerCard.dataset.name = playerName;
 
-      playerCard.innerHTML = `
-              <span class="player-name">${playerName}</span>
-              <div class="player-actions">
-                  <button class="remove-btn" title="Remove"><i class="fas fa-times"></i></button>
-              </div>
-          `;
+      // Player is selected if in selectedPlayers array
+      if (selectedPlayers.includes(playerName)) {
+        playerCard.classList.add("selected");
+      }
 
-      // Remove player
-      playerCard.querySelector(".remove-btn").addEventListener("click", () => {
-        selectedPlayers = selectedPlayers.filter((p) => p !== playerName);
-        playerCard.remove();
-        updatePlayerCount();
-        updateAddButtonState();
-      });
-
-      selectedPlayersContainer.appendChild(playerCard);
-    }
-
-    function addSavedPlayerToDisplay(playerName) {
-      // Check if already exists
-      if (savedPlayersContainer.querySelector(`[data-name="${playerName}"]`))
-        return;
-
-      const playerCard = document.createElement("div");
-      playerCard.className = "player-card saved-player";
-      playerCard.dataset.name = playerName;
+      // Player is disabled if at max selection and not selected
+      if (
+        selectedPlayers.length >= maxPlayers &&
+        !selectedPlayers.includes(playerName)
+      ) {
+        playerCard.classList.add("disabled");
+      }
 
       playerCard.innerHTML = `
-              <span class="player-name">${playerName}</span>
-              <div class="player-actions">
-                  <button class="delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
-              </div>
-          `;
+        <span class="player-name">${playerName}</span>
+        <div class="player-actions">
+          <button class="delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+        </div>
+      `;
 
-      // Click to add to selected players
+      // Click to select/deselect player
       playerCard.addEventListener("click", (e) => {
-        // If the click was on the delete button, don't add to selected players
+        // If clicking on delete button, don't select/deselect
         if (e.target.closest(".delete-btn")) return;
 
-        // Check if we're at maximum players
-        if (selectedPlayers.length >= maxPlayers) {
+        // Don't allow selecting if at max capacity and this player is not selected
+        if (
+          selectedPlayers.length >= maxPlayers &&
+          !selectedPlayers.includes(playerName)
+        ) {
           alert(
-            `Maximum players reached (${maxPlayers} for ${selectedTeamSize}v${selectedTeamSize}). Please remove a player or select a larger team size.`
+            `Maximum ${maxPlayers} players can be selected for ${selectedTeamSize}v${selectedTeamSize}. Please deselect some players first.`
           );
           return;
         }
 
-        if (!selectedPlayers.includes(playerName)) {
-          selectedPlayers.push(playerName);
-          addSelectedPlayerToDisplay(playerName);
-          updatePlayerCount();
-          updateAddButtonState();
+        // Toggle selection
+        if (selectedPlayers.includes(playerName)) {
+          // Deselect
+          selectedPlayers = selectedPlayers.filter((p) => p !== playerName);
+          playerCard.classList.remove("selected");
         } else {
-          alert("This player is already selected!");
+          // Select
+          selectedPlayers.push(playerName);
+          playerCard.classList.add("selected");
         }
+
+        // Update count
+        updatePlayerCount();
+
+        // Update all player card states
+        updatePlayerCardStates();
       });
 
       // Delete player
@@ -278,101 +315,94 @@ document.addEventListener("DOMContentLoaded", () => {
             // Delete from Firestore
             await playersCollection.doc(playerName).delete();
 
-            // Remove from local arrays
-            savedPlayers = savedPlayers.filter((p) => p !== playerName);
+            // Remove from arrays
+            allPlayers = allPlayers.filter((p) => p !== playerName);
             selectedPlayers = selectedPlayers.filter((p) => p !== playerName);
 
-            // Remove from displays
+            // Remove from display
             playerCard.remove();
-            const selectedPlayerCard = selectedPlayersContainer.querySelector(
-              `[data-name="${playerName}"]`
-            );
-            if (selectedPlayerCard) {
-              selectedPlayerCard.remove();
-            }
 
             // Update player count
             updatePlayerCount();
-            updateAddButtonState();
+
+            // Update player card states
+            updatePlayerCardStates();
           } catch (error) {
             alert("Failed to delete player. Please try again.");
           }
         });
 
-      savedPlayersContainer.appendChild(playerCard);
+      allPlayersContainer.appendChild(playerCard);
     }
 
-    async function loadSavedPlayers() {
+    async function loadPlayers() {
       // Clear the container first
-      savedPlayersContainer.innerHTML = "";
+      allPlayersContainer.innerHTML = "";
 
       // Get all players from Firestore
       const snapshot = await playersCollection.get();
 
-      // Reset saved players array
-      savedPlayers = [];
+      // Reset player arrays
+      allPlayers = [];
 
       // Add each player to the array and display
       snapshot.forEach((doc) => {
         const playerName = doc.id;
-        savedPlayers.push(playerName);
-        addSavedPlayerToDisplay(playerName);
+        allPlayers.push(playerName);
+        addPlayerToDisplay(playerName);
       });
+
+      // Show empty state if no players
+      if (allPlayers.length === 0) {
+        allPlayersContainer.innerHTML = `
+          <div class="empty-state">
+            <p>No players yet. Add players using the input above.</p>
+          </div>
+        `;
+      }
     }
 
     function updatePlayerCount() {
       playerCountElement.textContent = selectedPlayers.length;
 
       // Update the count color based on whether we have enough players
-      const totalPlayers = selectedTeamSize * 2;
-      if (selectedPlayers.length === totalPlayers) {
+      const requiredPlayers = selectedTeamSize * 2;
+      if (selectedPlayers.length === requiredPlayers) {
         playerCountElement.style.color = "var(--success-color)";
-      } else if (selectedPlayers.length > totalPlayers) {
+      } else if (selectedPlayers.length > requiredPlayers) {
         playerCountElement.style.color = "var(--warning-color)";
       } else {
         playerCountElement.style.color = "inherit";
       }
-    }
 
-    function updateAddButtonState() {
-      // Disable add button if at max players
-      if (selectedPlayers.length >= maxPlayers) {
-        addPlayerBtn.disabled = true;
-        addPlayerBtn.classList.add("btn-disabled");
-        addPlayerBtn.title = `Maximum ${maxPlayers} players reached for ${selectedTeamSize}v${selectedTeamSize}`;
-        playerNameInput.disabled = true;
-        playerNameInput.placeholder = `Max ${maxPlayers} players reached`;
+      // Enable/disable generate teams button
+      if (selectedPlayers.length === requiredPlayers) {
+        generateTeamsBtn.disabled = false;
+        generateTeamsBtn.classList.remove("btn-disabled");
       } else {
-        addPlayerBtn.disabled = false;
-        addPlayerBtn.classList.remove("btn-disabled");
-        addPlayerBtn.title = "";
-        playerNameInput.disabled = false;
-        playerNameInput.placeholder = "Enter player name";
+        generateTeamsBtn.disabled = true;
+        generateTeamsBtn.classList.add("btn-disabled");
       }
     }
 
     function generateTeams() {
       // Check if we have exactly the right number of players
-      const totalPlayers = selectedTeamSize * 2;
+      const requiredPlayers = selectedTeamSize * 2;
 
-      if (selectedPlayers.length < totalPlayers) {
+      if (selectedPlayers.length !== requiredPlayers) {
         alert(
-          `You need exactly ${totalPlayers} players for ${selectedTeamSize}v${selectedTeamSize} teams! You currently have ${selectedPlayers.length}.`
+          `You need exactly ${requiredPlayers} players selected for ${selectedTeamSize}v${selectedTeamSize} teams. You currently have ${selectedPlayers.length} selected.`
         );
         return;
       }
 
-      if (selectedPlayers.length > totalPlayers) {
-        alert(
-          `You have too many players (${selectedPlayers.length}). For ${selectedTeamSize}v${selectedTeamSize}, you need exactly ${totalPlayers} players.`
-        );
-        return;
-      }
+      // Create a copy of selected players
+      let shuffledPlayers = [...selectedPlayers];
 
-      // Shuffle players
-      const shuffledPlayers = [...selectedPlayers].sort(
-        () => Math.random() - 0.5
-      );
+      // Perform multiple Fisher-Yates shuffles for better randomness
+      for (let i = 0; i < 3; i++) {
+        shuffledPlayers = fisherYatesShuffle(shuffledPlayers);
+      }
 
       // Split into teams
       const team1 = shuffledPlayers.slice(0, selectedTeamSize);
@@ -383,6 +413,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Display teams
       displayTeams(team1, team2);
+    }
+
+    // Fisher-Yates shuffle algorithm
+    function fisherYatesShuffle(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        // Use window.crypto.getRandomValues for better randomness
+        const j = Math.floor(
+          (window.crypto.getRandomValues(new Uint32Array(1))[0] /
+            (0xffffffff + 1)) *
+            (i + 1)
+        );
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
     }
 
     function displayTeams(team1, team2) {
@@ -432,10 +477,16 @@ document.addEventListener("DOMContentLoaded", () => {
       return teamElement;
     }
 
-    function resetApp() {
+    function resetSelection() {
       // Clear selected players
       selectedPlayers = [];
-      selectedPlayersContainer.innerHTML = "";
+
+      // Update all player cards to remove selection
+      const playerCards = allPlayersContainer.querySelectorAll(".player-card");
+      playerCards.forEach((card) => {
+        card.classList.remove("selected");
+        card.classList.remove("disabled");
+      });
 
       // Hide teams
       teamsContainer.classList.remove("active");
@@ -443,124 +494,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Reset player count
       updatePlayerCount();
-
-      // Reset add button state
-      updateAddButtonState();
     }
-
-    // Export player data to JSON file
-    function exportPlayerData() {
-      if (savedPlayers.length === 0) {
-        alert("No players to export!");
-        return;
-      }
-
-      // Create JSON data
-      const exportData = {
-        players: savedPlayers,
-        exportDate: new Date().toISOString(),
-      };
-
-      // Convert to JSON string
-      const jsonData = JSON.stringify(exportData, null, 2);
-
-      // Create Blob with JSON data
-      const blob = new Blob([jsonData], { type: "application/json" });
-
-      // Create download URL
-      const url = URL.createObjectURL(blob);
-
-      // Create a download link and trigger it
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `sesherz-players-${formatDate(new Date())}.json`;
-      document.body.appendChild(a);
-      a.click();
-
-      // Clean up
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    // Import player data from JSON file
-    async function importPlayerData(event) {
-      const file = event.target.files[0];
-
-      if (!file) return;
-
-      // Create a file reader
-      const reader = new FileReader();
-
-      reader.onload = async function (e) {
-        try {
-          // Parse the JSON data
-          const importData = JSON.parse(e.target.result);
-
-          // Validate the data structure
-          if (!importData.players || !Array.isArray(importData.players)) {
-            throw new Error("Invalid file format. Missing players data.");
-          }
-
-          // Merge with existing players (avoiding duplicates)
-          const newPlayers = importData.players.filter(
-            (player) => !savedPlayers.includes(player)
-          );
-
-          if (newPlayers.length === 0) {
-            alert("No new players to import!");
-            return;
-          }
-
-          // Start a batch operation for better performance
-          const batch = db.batch();
-
-          // Add each new player to the batch
-          newPlayers.forEach((playerName) => {
-            const playerRef = playersCollection.doc(playerName);
-            batch.set(playerRef, {
-              name: playerName,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-              importedAt: new Date().toISOString(),
-            });
-          });
-
-          // Commit the batch
-          await batch.commit();
-
-          // Add new players to saved players array and display
-          newPlayers.forEach((playerName) => {
-            if (!savedPlayers.includes(playerName)) {
-              savedPlayers.push(playerName);
-              addSavedPlayerToDisplay(playerName);
-            }
-          });
-
-          alert(`Successfully imported ${newPlayers.length} new player(s)!`);
-        } catch (error) {
-          alert(`Error importing players: ${error.message}`);
-        }
-
-        // Reset the file input
-        event.target.value = "";
-      };
-
-      reader.onerror = function () {
-        alert("Error reading the file!");
-        event.target.value = "";
-      };
-
-      reader.readAsText(file);
-    }
-
-    // Helper function to format date for filename
-    function formatDate(date) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-    }
-
-    // Initial state setup
-    updateAddButtonState();
   }
 });

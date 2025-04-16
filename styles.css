@@ -295,11 +295,30 @@ input[type="text"]:disabled {
   opacity: 0.7;
 }
 
+.player-stats {
+  margin: 1rem 0;
+  text-align: center;
+  font-weight: 500;
+}
+
+.player-stats p {
+  margin-bottom: 0;
+}
+
+.player-stats span {
+  font-weight: 600;
+}
+
 .players-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 0.8rem;
   margin-bottom: 1.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius);
 }
 
 .player-card {
@@ -311,24 +330,44 @@ input[type="text"]:disabled {
   align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .player-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.saved-player {
-  cursor: pointer;
-}
-
-.saved-player:hover {
   background-color: rgba(108, 92, 231, 0.1);
+}
+
+/* Selected player styling */
+.player-card.selected {
+  background-color: var(--primary-light);
+  color: white;
+  border-left: 4px solid var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.player-card.selected .player-name {
+  font-weight: 600;
+}
+
+/* Cannot select more styling */
+.player-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.player-card.disabled:hover {
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background-color: var(--light-color);
 }
 
 .player-name {
   font-weight: 500;
   word-break: break-word;
+  flex: 1;
 }
 
 .player-actions {
@@ -336,22 +375,12 @@ input[type="text"]:disabled {
   gap: 0.3rem;
 }
 
-.player-actions button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 0.9rem;
-  color: var(--dark-color);
-  opacity: 0.6;
-  transition: all 0.3s ease;
+.player-card.selected .player-actions button {
+  color: white;
 }
 
 .player-actions button:hover {
   opacity: 1;
-}
-
-.player-actions .remove-btn:hover {
-  color: var(--danger-color);
 }
 
 .player-actions .delete-btn:hover {
@@ -362,6 +391,7 @@ input[type="text"]:disabled {
   display: flex;
   gap: 1rem;
   justify-content: center;
+  margin-top: 1.5rem;
 }
 
 .teams-display {
@@ -430,36 +460,6 @@ footer {
   font-size: 0.9rem;
 }
 
-/* New Styles for Export/Import */
-.saved-players-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.data-controls {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.file-upload-container {
-  position: relative;
-}
-
-.file-upload-container label {
-  margin: 0;
-}
-
-input[type="file"] {
-  position: absolute;
-  width: 0.1px;
-  height: 0.1px;
-  opacity: 0;
-  overflow: hidden;
-  z-index: -1;
-}
-
 /* Firebase loading and error states */
 .loading-spinner {
   padding: 2rem;
@@ -497,6 +497,14 @@ input[type="file"] {
   margin-bottom: 1rem;
 }
 
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--dark-color);
+  opacity: 0.7;
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 1rem;
@@ -512,12 +520,6 @@ input[type="file"] {
 
   .players-grid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  }
-
-  .saved-players-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
   }
 
   .pin-container {
