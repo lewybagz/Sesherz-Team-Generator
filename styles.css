@@ -9,6 +9,21 @@
   --danger-color: #d63031;
   --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   --border-radius: 8px;
+
+  /* Dark Theme Palette */
+  --body-bg-dark: linear-gradient(
+    to bottom right,
+    #111827,
+    #1f2937,
+    #000000
+  ); /* from-gray-900 via-gray-800 to-black */
+  --text-color-dark: #f3f4f6; /* text-gray-100 */
+  --text-secondary-dark: #d1d5db; /* text-gray-300 */
+  --text-placeholder-dark: #9ca3af; /* text-gray-400 */
+  --container-bg-dark: #1f2937; /* gray-800, for cards */
+  --container-bg-hover-dark: #374151; /* gray-700 */
+  --input-bg-dark: #374151; /* gray-700 for input fields */
+  --border-color-dark: #4b5563; /* gray-600 */
 }
 
 * {
@@ -19,8 +34,9 @@
 
 body {
   font-family: "Poppins", sans-serif;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  color: var(--dark-color);
+  color: var(--text-color-dark);
+  background-image: var(--body-bg-dark);
+  background-color: #111827;
   min-height: 100vh;
   line-height: 1.6;
 }
@@ -36,7 +52,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+  background: var(--body-bg-dark);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -44,7 +60,7 @@ body {
 }
 
 .auth-container {
-  background-color: white;
+  background-color: var(--container-bg-dark);
   border-radius: var(--border-radius);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   width: 90%;
@@ -71,22 +87,23 @@ body {
 
 .auth-logo h1 {
   font-size: 2.2rem;
-  color: var(--primary-color);
+  color: var(--primary-light);
   margin-bottom: 0.5rem;
 }
 
 .auth-logo p {
-  color: var(--dark-color);
-  opacity: 0.7;
+  color: var(--text-secondary-dark);
+  opacity: 1;
 }
 
 p {
   margin-bottom: 1rem;
+  color: var(--text-color-dark);
 }
 
 .auth-form h2 {
   font-size: 1.5rem;
-  color: var(--dark-color);
+  color: var(--text-color-dark);
 }
 
 .pin-container {
@@ -103,7 +120,8 @@ p {
   border-radius: var(--border-radius);
   font-size: 1.5rem;
   text-align: center;
-  background-color: white;
+  background-color: var(--input-bg-dark);
+  color: var(--text-color-dark);
   transition: all 0.3s ease;
 }
 
@@ -155,39 +173,39 @@ header {
   text-align: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid var(--border-color-dark);
 }
 
 h1 {
   font-size: 2.8rem;
   margin-bottom: 0.5rem;
-  color: var(--primary-color);
+  color: var(--primary-light);
   text-shadow: 0 2px 10px rgba(108, 92, 231, 0.2);
 }
 
 .tagline {
   font-size: 1.2rem;
-  color: var(--dark-color);
-  opacity: 0.8;
+  color: var(--text-secondary-dark);
+  opacity: 1;
 }
 
 h2 {
   font-size: 1.8rem;
-  color: var(--dark-color);
+  color: var(--text-color-dark);
 }
 
 h3 {
   font-size: 1.4rem;
   margin-bottom: 1rem;
-  color: var(--dark-color);
+  color: var(--text-color-dark);
 }
 
 section {
-  background-color: white;
+  background-color: transparent;
   border-radius: var(--border-radius);
   padding: 1.5rem;
   margin-bottom: 2rem;
-  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color-dark);
 }
 
 .team-options {
@@ -198,8 +216,9 @@ section {
 }
 
 .team-size-btn {
-  background-color: white;
-  border: 2px solid var(--primary-light);
+  background-color: var(--input-bg-dark);
+  border: 2px solid var(--border-color-dark);
+  color: var(--text-color-dark);
   border-radius: var(--border-radius);
   padding: 0.6rem 1.2rem;
   font-size: 1rem;
@@ -210,8 +229,8 @@ section {
 }
 
 .team-size-btn:hover {
-  background-color: var(--primary-light);
-  color: white;
+  background-color: var(--container-bg-hover-dark);
+  color: var(--text-color-dark);
 }
 
 .team-size-btn.active {
@@ -227,27 +246,35 @@ section {
 
 input[type="text"] {
   flex: 1;
+  margin-right: 0.5rem;
+  background-color: var(--input-bg-dark);
+  color: var(--text-color-dark);
   padding: 0.8rem 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: var(--border-radius) 0 0 var(--border-radius);
+  border: 1px solid var(--border-color-dark);
+  border-radius: var(--border-radius);
   font-size: 1rem;
   font-family: inherit;
+}
+
+input[type="text"]::placeholder {
+  color: var(--text-placeholder-dark);
 }
 
 input[type="text"]:focus {
   outline: none;
   border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.2);
 }
 
 input[type="text"]:disabled {
-  background-color: #f0f0f0;
+  background-color: #2d3436;
   cursor: not-allowed;
-  color: #888;
-  border-color: rgba(0, 0, 0, 0.1);
+  color: var(--text-secondary-dark);
+  border-color: var(--border-color-dark);
 }
 
 .btn {
-  background-color: var(--primary-light);
+  background-color: #6c5ce7;
   color: white;
   border: none;
   padding: 0.8rem 1.2rem;
@@ -266,7 +293,27 @@ input[type="text"]:disabled {
 }
 
 #add-player {
+  /* Rounded corners on the left, square on the right */
+  border-radius: var(--border-radius) 0 0 var(--border-radius);
+  /* Separator line on the right */
+  border-right: 1px solid rgb(209, 209, 209);
+  margin-right: 0;
+  padding-right: 20px;
+  border-top: none;
+  border-bottom: none;
+  border-left: none;
+}
+
+#add-random {
+  /* Square corners on the left, rounded on the right */
   border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  margin-left: 0; /* Ensure no space next to the preceding button */
+  /* Remove left border to connect smoothly with #add-player's right border */
+  border-left: none;
+  /* Ensure other borders are not present */
+  border-top: none;
+  border-bottom: none;
+  border-right: none;
 }
 
 .btn-primary {
@@ -275,8 +322,13 @@ input[type="text"]:disabled {
 }
 
 .btn-secondary {
-  background-color: var(--dark-color);
+  background-color: var(--container-bg-hover-dark);
   border-radius: var(--border-radius);
+  color: var(--text-color-dark);
+}
+
+.rounded-xl {
+  border-radius: 0.75rem; /* Tailwind 'xl' border radius */
 }
 
 .btn:hover {
@@ -295,14 +347,24 @@ input[type="text"]:disabled {
   opacity: 0.7;
 }
 
+#generate-teams:disabled,
+#generate-teams.btn-disabled {
+  background-color: #1913413f; /* Darker version of --primary-color (#6c5ce7) */
+  opacity: 1; /* Ensure full visibility, overriding general disabled opacity */
+  cursor: not-allowed; /* Explicitly keep the not-allowed cursor */
+  /* color: white; should still apply from .btn class for the text */
+}
+
 .player-stats {
   margin: 1rem 0;
   text-align: center;
   font-weight: 500;
+  color: var(--text-color-dark);
 }
 
 .player-stats p {
   margin-bottom: 0;
+  color: var(--text-color-dark);
 }
 
 .player-stats span {
@@ -317,57 +379,59 @@ input[type="text"]:disabled {
   max-height: 300px;
   overflow-y: auto;
   padding: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color-dark);
   border-radius: var(--border-radius);
 }
 
 .player-card {
-  background-color: var(--light-color);
+  background-color: var(--container-bg-dark);
   border-radius: var(--border-radius);
   padding: 0.8rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color-dark);
   transition: all 0.3s ease;
   cursor: pointer;
+  color: var(--text-color-dark);
 }
 
 .player-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  background-color: rgba(108, 92, 231, 0.1);
+  background-color: var(--container-bg-hover-dark);
 }
 
 /* Selected player styling */
 .player-card.selected {
-  background-color: var(--primary-light);
+  background-color: var(--primary-color);
   color: white;
-  border-left: 4px solid var(--primary-color);
+  border-left: 4px solid var(--primary-light);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--primary-color);
 }
 
 .player-card.selected .player-name {
   font-weight: 600;
+  color: white;
 }
 
 /* Cannot select more styling */
 .player-card.disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
+  background-color: #2d3436;
 }
 
 .player-card.disabled:hover {
   transform: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  background-color: var(--light-color);
+  background-color: #2d3436;
 }
 
 .player-name {
   font-weight: 500;
   word-break: break-word;
   flex: 1;
+  color: var(--text-color-dark);
 }
 
 .player-actions {
@@ -379,8 +443,16 @@ input[type="text"]:disabled {
   color: white;
 }
 
+.player-actions button {
+  color: var(--text-secondary-dark);
+  background: transparent;
+  border: none;
+  padding: 0.2rem;
+}
+
 .player-actions button:hover {
   opacity: 1;
+  color: var(--primary-light);
 }
 
 .player-actions .delete-btn:hover {
@@ -394,21 +466,51 @@ input[type="text"]:disabled {
   margin-top: 1.5rem;
 }
 
-.teams-display {
-  display: none;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+.teams-display.active {
+  display: block; /* Change from grid to block, as .battleground controls internal layout */
 }
 
-.teams-display.active {
-  display: grid;
+.battleground {
+  display: flex;
+  justify-content: space-around; /* Distribute space around teams and VS text */
+  align-items: center; /* Vertically align items */
+  gap: 0.5rem; /* Small gap between elements */
+  width: 100%;
+}
+
+.vs-text {
+  font-family: "Impact", Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  font-size: 3.5rem; /* Large and impactful */
+  color: var(--warning-color); /* Bright yellow for VS */
+  text-transform: uppercase;
+  flex-shrink: 0; /* Prevent VS text from shrinking */
+  padding: 0 0.5rem;
+  line-height: 1;
+  border-bottom: 5px solid var(--border-color-dark);
+  text-shadow: 2px 2px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000,
+    -2px 2px 0px #000, 3px 3px 5px rgba(0, 0, 0, 0.7);
 }
 
 .team {
-  background-color: white;
+  /* background-color: var(--container-bg-dark); // from previous dark theme */
   border-radius: var(--border-radius);
-  padding: 1.5rem;
-  box-shadow: var(--shadow);
+  padding: 1.5rem; /* border: 1px solid var(--border-color-dark); // from previous dark theme */
+  flex: 1; /* Allow teams to take up available space */
+  max-width: calc(
+    50% - 3rem
+  ); /* Adjust to prevent overlap, considering VS text width */
+  border-width: 3px; /* Thicker border */
+  border-style: solid; /* Ensure border style is solid */
+}
+
+.team-1 {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 15px rgba(162, 155, 254, 0.5); /* Glow for Team 1 (primary-light) */
+}
+
+.team-2 {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 15px rgba(253, 121, 168, 0.5); /* Glow for Team 2 (secondary-color) */
 }
 
 .team-header {
@@ -417,7 +519,7 @@ input[type="text"]:disabled {
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid var(--border-color-dark);
 }
 
 .team-name {
@@ -433,11 +535,13 @@ input[type="text"]:disabled {
 
 .team-members {
   list-style: none;
+  color: var(--text-color-dark);
 }
 
 .team-members li {
   padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--border-color-dark);
+  color: inherit;
 }
 
 .team-members li:last-child {
@@ -445,7 +549,7 @@ input[type="text"]:disabled {
 }
 
 .team-1 .team-name {
-  color: var(--primary-color);
+  color: var(--primary-light);
 }
 
 .team-2 .team-name {
@@ -455,8 +559,8 @@ input[type="text"]:disabled {
 footer {
   text-align: center;
   margin-top: 3rem;
-  color: var(--dark-color);
-  opacity: 0.7;
+  color: var(--text-secondary-dark);
+  opacity: 0.8;
   font-size: 0.9rem;
 }
 
@@ -464,8 +568,8 @@ footer {
 .loading-spinner {
   padding: 2rem;
   text-align: center;
-  color: var(--dark-color);
-  opacity: 0.7;
+  color: var(--text-secondary-dark);
+  opacity: 1;
   font-style: italic;
 }
 
@@ -489,7 +593,7 @@ footer {
 
 .error-message {
   padding: 1rem;
-  background-color: rgba(214, 48, 49, 0.1);
+  background-color: rgba(214, 48, 49, 0.2);
   border: 1px solid var(--danger-color);
   border-radius: var(--border-radius);
   color: var(--danger-color);
@@ -501,8 +605,8 @@ footer {
 .empty-state {
   text-align: center;
   padding: 2rem;
-  color: var(--dark-color);
-  opacity: 0.7;
+  color: var(--text-secondary-dark);
+  opacity: 1;
 }
 
 @media (max-width: 768px) {
@@ -531,4 +635,19 @@ footer {
     height: 45px;
     font-size: 1.3rem;
   }
+}
+
+/* Add this to your CSS file */
+.player-card.random-player {
+  border: 2px dashed var(--warning-color);
+  background-color: rgba(55, 65, 81, 0.7);
+}
+
+.player-card.random-player::after {
+  content: "🏄";
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 12px;
+  opacity: 0.7;
 }

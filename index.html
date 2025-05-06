@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="description" content="Premium Team Generator" />
     <meta name="author" content="Sesherz Team Generator" />
-    <meta name="keywords" content="team generator, pick teams pussy" />
+    <meta name="keywords" content="random team generator" />
     <!-- favicon -->
     <link
       rel="apple-touch-icon"
@@ -26,7 +26,7 @@
     />
     <link rel="manifest" href="public/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pick Teams Pussy</title>
+    <title>What's The Teams?</title>
     <link rel="stylesheet" href="styles.css" />
     <link
       rel="stylesheet"
@@ -42,7 +42,7 @@
     <div id="auth-screen" class="auth-overlay">
       <div class="auth-container">
         <div class="auth-logo">
-          <h1>Pick Teams Pussy</h1>
+          <h1>What's The Teams?</h1>
           <p>Premium Team Generator</p>
         </div>
         <div class="auth-form">
@@ -108,7 +108,7 @@
     <!-- Main App (will be hidden until authentication) -->
     <div id="app-container" class="container hidden">
       <header>
-        <h1>Pick Teams Pussy</h1>
+        <h1>What's The Teams?</h1>
         <p class="tagline">Sesherz Team Generator</p>
       </header>
 
@@ -117,11 +117,11 @@
           <h2>Team Size</h2>
           <p>Select the number of players per team:</p>
           <div class="team-options">
-            <button class="team-size-btn" data-size="2">2v2</button>
+            <button class="team-size-btn active" data-size="2">2v2</button>
             <button class="team-size-btn" data-size="3">3v3</button>
             <button class="team-size-btn" data-size="4">4v4</button>
             <button class="team-size-btn" data-size="5">5v5</button>
-            <button class="team-size-btn active" data-size="6">6v6</button>
+            <button class="team-size-btn" data-size="6">6v6</button>
             <button class="team-size-btn" data-size="7">7v7</button>
           </div>
         </section>
@@ -138,7 +138,8 @@
               id="player-name"
               placeholder="Enter player name"
             />
-            <button id="add-player" class="btn">Add</button>
+            <button id="add-player" class="btn">Add Homie</button>
+            <button id="add-random" class="btn">Add Random</button>
           </div>
 
           <div class="player-stats">
@@ -170,7 +171,7 @@
 
       <footer>
         <p>
-          © <span id="current-year"></span> Pick Teams Pussy | Premium Team
+          © <span id="current-year"></span> What's The Teams? | Premium Team
           Generator
         </p>
       </footer>

@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const teamSizeButtons = document.querySelectorAll(".team-size-btn");
     const playerNameInput = document.getElementById("player-name");
     const addPlayerBtn = document.getElementById("add-player");
+    const addRandomBtn = document.getElementById("add-random");
     const allPlayersContainer = document.getElementById("all-players");
     const playerCountElement = document.getElementById("player-count");
     const requiredPlayersElement = document.getElementById("required-players");
@@ -43,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const playersCollection = db.collection("players");
 
     // App State
-    let selectedTeamSize = 6; // Default to 6v6 (matching the active button in HTML)
+    let selectedTeamSize = 2; // Default to 6v6 (matching the active button in HTML)
     let maxPlayers = selectedTeamSize * 2; // Maximum players allowed (based on team size)
     let allPlayers = []; // All players from the database
     let selectedPlayers = []; // Currently selected players
@@ -135,13 +136,18 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       });
 
-      // Add player
+      // Add player (to database and UI)
       addPlayerBtn.addEventListener("click", () => {
-        addPlayer();
+        addPlayer(true);
+      });
+
+      // Add random player (only to UI, not to database)
+      addRandomBtn.addEventListener("click", () => {
+        addPlayer(false);
       });
 
       playerNameInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") addPlayer();
+        if (e.key === "Enter") addPlayer(true);
       });
 
       // Generate teams
@@ -192,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    async function addPlayer() {
+    async function addPlayer(saveToDB = true) {
       const playerName = playerNameInput.value.trim();
 
       if (!playerName) return;
@@ -206,18 +212,21 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
-        // Add to Firestore if not already exists
-        if (!allPlayers.includes(playerName)) {
+        // For persistent players, save to Firestore if not already exists
+        if (saveToDB && !allPlayers.includes(playerName)) {
           await playersCollection.doc(playerName).set({
             name: playerName,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           });
+        }
 
-          // Add to local array
+        // Add to local array if not already in the list
+        // For random players, we still add to allPlayers for UI tracking
+        if (!allPlayers.includes(playerName)) {
           allPlayers.push(playerName);
 
-          // Add to UI
-          addPlayerToDisplay(playerName);
+          // Add to UI with appropriate class for random players
+          addPlayerToDisplay(playerName, !saveToDB);
         }
 
         // Select the newly added player
@@ -247,7 +256,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    function addPlayerToDisplay(playerName) {
+    function addPlayerToDisplay(playerName, isRandom = false) {
       // Check if already exists in display
       if (allPlayersContainer.querySelector(`[data-name="${playerName}"]`)) {
         return;
@@ -255,6 +264,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const playerCard = document.createElement("div");
       playerCard.className = "player-card";
+      if (isRandom) {
+        playerCard.classList.add("random-player");
+      }
       playerCard.dataset.name = playerName;
 
       // Player is selected if in selectedPlayers array
@@ -321,8 +333,11 @@ document.addEventListener("DOMContentLoaded", () => {
           e.stopPropagation(); // Prevent click event from bubbling up to card
 
           try {
-            // Delete from Firestore
-            await playersCollection.doc(playerName).delete();
+            // Random players are only deleted from UI
+            // Regular players are deleted from Firestore
+            if (!playerCard.classList.contains("random-player")) {
+              await playersCollection.doc(playerName).delete();
+            }
 
             // Remove from arrays
             allPlayers = allPlayers.filter((p) => p !== playerName);
@@ -443,15 +458,27 @@ document.addEventListener("DOMContentLoaded", () => {
       // Clear previous teams
       teamsContainer.innerHTML = "";
 
+      const battleGround = document.createElement("div");
+      battleGround.className = "battleground";
+
       // Create team 1
       const team1Element = createTeamElement("Team 1", team1, "team-1");
+
+      // Create VS text element
+      const vsElement = document.createElement("div");
+      vsElement.className = "vs-text";
+      vsElement.textContent = "VS";
 
       // Create team 2
       const team2Element = createTeamElement("Team 2", team2, "team-2");
 
-      // Add to container
-      teamsContainer.appendChild(team1Element);
-      teamsContainer.appendChild(team2Element);
+      // Add elements to the battleground
+      battleGround.appendChild(team1Element);
+      battleGround.appendChild(vsElement);
+      battleGround.appendChild(team2Element);
+
+      // Add battleground to the main teams container
+      teamsContainer.appendChild(battleGround);
 
       // Show teams container
       teamsContainer.classList.add("active");
